@@ -139,7 +139,7 @@
     function tryGo() {
       const v = (usernameEl.value || "").trim();
       if (v.toLowerCase() === "otaku") show("scene-zoi");
-      else alert("Δοκίμασε: otaku");
+      else alert("Try: otaku");
     }
     document.getElementById("btnGo").addEventListener("click", tryGo);
     usernameEl.addEventListener("keydown", (e) => { if (e.key === "Enter") tryGo(); });
@@ -157,3 +157,4 @@
   </script>
 </body>
 </html>
+

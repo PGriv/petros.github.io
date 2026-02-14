@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Scenes</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body { margin: 0; background: #0b0f19; color: #e9eefc; }
+    .stage {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+    .card {
+      width: min(420px, 100%);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      text-align: center;
+    }
+    h1 { font-size: 20px; margin: 6px 0 12px; }
+    p { margin: 10px 0; line-height: 1.45; opacity: 0.95; }
+    input {
+      width:100%;
+      padding: 12px 5px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.25);
+      color: #e9eefc;
+      font-size: 16px;
+      outline: none;
+    }
+    .gif {
+      width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      border-radius: 14px;
+      margin: 12px 0 6px;
+      background: rgba(0,0,0,0.18);
+    }
+    .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    button {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      color: #e9eefc;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button.primary { background: rgba(120, 168, 255, 0.22); border-color: rgba(120,168,255,0.45); }
+    button:active { transform: translateY(1px); }
+    .hint { font-size: 13px; opacity: 0.7; margin-top: 10px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="card">
+
+      <!-- Scene: login -->
+      <section id="scene-login">
+        <h1>Username</h1>
+        <input id="username" placeholder="Type your name..." autocomplete="off" />
+        
+        <div class="btnrow" style="grid-template-columns: 1fr;">
+          <button class="primary" id="btnGo">Continue</button>
+        </div>
+      </section>
+
+      <!-- Scene: Zoi scene -->
+      <section id="scene-zoi" class="hidden">
+        <p id="zoiText">Are you an otaku princess?</p>
+        <img class="gif" id="zoiGif" alt="gif" />
+        <div class="btnrow">
+          <button class="primary" data-next="scene-finalYes">Yes</button>
+          <button data-next="scene-no1">No</button>
+        </div>
+      </section>
+
+      <!-- Scene: No 1 -->
+      <section id="scene-no1" class="hidden">
+        <p id="no1Text">Are you sure???</p>
+        <img class="gif" id="no1Gif" alt="gif" />
+        <div class="btnrow">
+          <button class="primary" data-next="scene-finalYes">Yes</button>
+          <button data-next="scene-no2">No</button>
+        </div>
+      </section>
+
+      <!-- Scene: No 2 -->
+      <section id="scene-no2" class="hidden">
+        <p id="no2Text">EHM...</p>
+        <img class="gif" id="no2Gif" alt="gif" />
+        <div class="btnrow" style="grid-template-columns: 1fr;">
+          <button class="primary" data-next="scene-finalYes">Yes</button>
+        </div>
+      </section>
+
+      <!-- Scene: Final Yes -->
+      <section id="scene-finalYes" class="hidden">
+        <p id="finalText">You are an otaku princess! You are also my valentine <3</p>
+        <img class="gif" id="finalGif" alt="gif" />
+        <div class="btnrow" style="grid-template-columns: 1fr;">
+          <button id="btnRestart">Restart</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // 1) Δήλωσε εδώ τα gif paths (ιδανικά local μέσα στα assets)
+    const GIFS = {
+      zoi:  "gifs/otaku.gif",
+      no1:  "gifs/2.gif",
+      no2:  "gifs/3.gif",
+      final:"gifs/final.gif",
+    };
+
+    // 2) Helper: show μόνο ένα scene
+    const scenes = ["scene-login","scene-zoi","scene-no1","scene-no2","scene-finalYes"];
+    function show(id) {
+      for (const s of scenes) document.getElementById(s).classList.toggle("hidden", s !== id);
+    }
+
+    // 3) Βάλε gif sources (αν δεν έχεις ακόμα, βάλε προσωρινά https links)
+    document.getElementById("zoiGif").src   = GIFS.zoi;
+    document.getElementById("no1Gif").src   = GIFS.no1;
+    document.getElementById("no2Gif").src   = GIFS.no2;
+    document.getElementById("finalGif").src = GIFS.final;
+
+    // 4) Login flow: μόνο αν username == "Zoi"
+    const usernameEl = document.getElementById("username");
+    function tryGo() {
+      const v = (usernameEl.value || "").trim();
+      if (v.toLowerCase() === "otaku") show("scene-zoi");
+      else alert("Δοκίμασε: otaku");
+    }
+    document.getElementById("btnGo").addEventListener("click", tryGo);
+    usernameEl.addEventListener("keydown", (e) => { if (e.key === "Enter") tryGo(); });
+
+    // 5) Buttons yes/no με data-next
+    document.querySelectorAll("button[data-next]").forEach(btn => {
+      btn.addEventListener("click", () => show(btn.dataset.next));
+    });
+
+    // 6) Restart
+    document.getElementById("btnRestart").addEventListener("click", () => {
+      usernameEl.value = "";
+      show("scene-login");
+    });
+  </script>
+</body>
+</html>
